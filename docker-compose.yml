@@ -1,0 +1,146 @@
+name: devsu
+
+services:
+
+  devsu-postgres:
+    image: postgres:16-alpine
+    container_name: devsu-postgres
+    environment:
+      # La imagen crea esta base al arrancar y ejecuta contra ella los scripts de
+      # /docker-entrypoint-initdb.d. BaseDatos.sql crea despues devsu_clientes y
+      # devsu_cuentas con \connect, que es una instruccion de psql.
+      POSTGRES_USER: ${POSTGRES_USER:-devsu}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-devsu2024}
+      POSTGRES_DB: devsu
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - devsu-postgres-datos:/var/lib/postgresql/data
+      # Los scripts se ejecutan en orden alfabetico y una unica vez, cuando el
+      # volumen esta vacio. Para recargarlos: docker compose down -v.
+      - ./database/BaseDatos.sql:/docker-entrypoint-initdb.d/01-BaseDatos.sql:ro
+      - ./database/datos-prueba.sql:/docker-entrypoint-initdb.d/02-datos-prueba.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-devsu} -d devsu_clientes"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    networks:
+      - devsu-red
+
+  devsu-rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: devsu-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-devsu}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-devsu2024}
+    ports:
+      - "5672:5672"
+      # Consola de administracion: http://localhost:15672
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    networks:
+      - devsu-red
+
+  devsu-clientes-api:
+    build:
+      context: ./server
+      dockerfile: clientes/Dockerfile
+    container_name: devsu-clientes-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Postgres: "Host=devsu-postgres;Port=5432;Database=devsu_clientes;Username=${POSTGRES_USER:-devsu};Password=${POSTGRES_PASSWORD:-devsu2024}"
+      Mensajeria__Habilitado: "true"
+      Mensajeria__Host: devsu-rabbitmq
+      Mensajeria__Usuario: ${RABBITMQ_USER:-devsu}
+      Mensajeria__Contrasenia: ${RABBITMQ_PASSWORD:-devsu2024}
+      Firebase__Habilitado: "${FIREBASE_HABILITADO:-false}"
+      Firebase__ProjectId: "${FIREBASE_PROJECT_ID:-}"
+    ports:
+      - "8081:8080"
+    depends_on:
+      devsu-postgres:
+        condition: service_healthy
+      devsu-rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - devsu-red
+
+  devsu-cuentas-api:
+    build:
+      context: ./server
+      dockerfile: cuentas/Dockerfile
+    container_name: devsu-cuentas-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Postgres: "Host=devsu-postgres;Port=5432;Database=devsu_cuentas;Username=${POSTGRES_USER:-devsu};Password=${POSTGRES_PASSWORD:-devsu2024}"
+      Mensajeria__Habilitado: "true"
+      Mensajeria__Host: devsu-rabbitmq
+      Mensajeria__Usuario: ${RABBITMQ_USER:-devsu}
+      Mensajeria__Contrasenia: ${RABBITMQ_PASSWORD:-devsu2024}
+      # Respaldo sincrono cuando la replica local del cliente todavia no llego.
+      ServiciosExternos__ClientesApi: "http://devsu-clientes-api:8080"
+      Firebase__Habilitado: "${FIREBASE_HABILITADO:-false}"
+      Firebase__ProjectId: "${FIREBASE_PROJECT_ID:-}"
+    ports:
+      - "8082:8080"
+    depends_on:
+      devsu-postgres:
+        condition: service_healthy
+      devsu-rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - devsu-red
+
+  devsu-client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        # Vite sustituye las variables VITE_ en tiempo de compilacion, no de
+        # ejecucion, asi que la configuracion de Firebase entra como build arg.
+        VITE_FIREBASE_API_KEY: "${VITE_FIREBASE_API_KEY:-}"
+        VITE_FIREBASE_AUTH_DOMAIN: "${VITE_FIREBASE_AUTH_DOMAIN:-}"
+        VITE_FIREBASE_PROJECT_ID: "${VITE_FIREBASE_PROJECT_ID:-}"
+        VITE_FIREBASE_STORAGE_BUCKET: "${VITE_FIREBASE_STORAGE_BUCKET:-}"
+        VITE_FIREBASE_MESSAGING_SENDER_ID: "${VITE_FIREBASE_MESSAGING_SENDER_ID:-}"
+        VITE_FIREBASE_APP_ID: "${VITE_FIREBASE_APP_ID:-}"
+        VITE_FIREBASE_MEASUREMENT_ID: "${VITE_FIREBASE_MEASUREMENT_ID:-}"
+    container_name: devsu-client
+    ports:
+      - "3000:80"
+    depends_on:
+      - devsu-clientes-api
+      - devsu-cuentas-api
+    restart: unless-stopped
+    networks:
+      - devsu-red
+
+volumes:
+  devsu-postgres-datos:
+    name: devsu-postgres-datos
+
+networks:
+  devsu-red:
+    name: devsu-red
+    driver: bridge

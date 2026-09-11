@@ -1,0 +1,10 @@
+# Sin esto, el COPY del codigo fuente arrastra los bin/ y obj/ generados en la
+# maquina anfitriona y pisa el resultado del restore hecho dentro de la imagen.
+# El project.assets.json copiado apunta a rutas de Windows y el publish falla con
+# un error de NuGet que no dice nada del problema real.
+**/bin/
+**/obj/
+
+**/.vs/
+**/*.user
+**/TestResults/
