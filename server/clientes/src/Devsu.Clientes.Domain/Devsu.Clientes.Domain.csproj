@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Devsu.Clientes.Domain</RootNamespace>
+    <AssemblyName>Devsu.Clientes.Domain</AssemblyName>
+  </PropertyGroup>
+
+  <!-- La capa de dominio no referencia nada a proposito. Si alguna vez hace falta
+       agregar un paquete aqui, casi siempre significa que la logica esta en la
+       capa equivocada. -->
+
+</Project>
