@@ -1,0 +1,13 @@
+# Lo unico que se versiona de esta carpeta son los scripts fuente:
+# BaseDatos.sql y datos-prueba.sql. Todo lo demas es un artefacto que se genera
+# al depurar contra una base ya levantada.
+
+*.dump
+*.backup
+*.tar
+*.sql.gz
+*.bak
+
+# Volcados de pg_dump con nombre generado por fecha.
+dump_*.sql
+backup_*.sql
