@@ -1,0 +1,45 @@
+# Normaliza los finales de linea al entrar en el repositorio.
+#
+# El proyecto se desarrolla en Windows pero se compila dentro de contenedores
+# Linux y lo va a clonar gente en Linux y macOS. Sin esto, un archivo guardado
+# con CRLF puede llegar al contenedor y romper de formas dificiles de leer.
+
+* text=auto eol=lf
+
+
+# --- Excepciones que tienen que conservar CRLF -------------------------------
+# Visual Studio reescribe el .sln con CRLF en cuanto se abre; forzarlo a LF solo
+# genera ruido en cada diff.
+*.sln text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+
+# --- Archivos que siempre son LF ---------------------------------------------
+# Estos entran en las imagenes de Docker o los ejecuta un motor Linux.
+Dockerfile text eol=lf
+*.sh text eol=lf
+*.sql text eol=lf
+*.conf text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+
+# --- Binarios: git no debe tocarlos ni intentar mostrar diferencias ----------
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.dll binary
+*.exe binary
+
+
+# --- Ruido en las revisiones -------------------------------------------------
+# Se siguen versionando, pero GitHub los colapsa por defecto en el diff y no
+# cuentan para las estadisticas de lenguajes del repositorio.
+client/package-lock.json linguist-generated=true
+postman/*.json linguist-generated=true

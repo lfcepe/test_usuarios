@@ -1,0 +1,57 @@
+# Reglas del backend .NET. Complementan las del .gitignore de la raiz.
+
+
+# --- Artefactos de compilacion -----------------------------------------------
+# obj/ guarda ademas project.assets.json, que es el resultado del restore y se
+# regenera solo. Versionarlo ata el repositorio a las rutas absolutas y al feed
+# de la maquina que lo genero.
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+[Bb]uild/
+[Oo]ut/
+x64/
+x86/
+*.binlog
+
+
+# --- Pruebas y cobertura -----------------------------------------------------
+TestResults/
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+coverage*.xml
+coverage*.json
+coverage*.info
+[Cc]overage[Rr]eport/
+
+
+# --- Archivos de usuario y de herramientas -----------------------------------
+*.user
+*.suo
+*.userprefs
+*.userosscache
+*.sln.docstates
+.vs/
+*.received.*
+
+
+# --- Paquetes y publicacion --------------------------------------------------
+# Con Central Package Management las versiones estan en Directory.Packages.props;
+# los paquetes descargados viven en la cache global de NuGet, no aqui.
+packages/
+*.nupkg
+*.snupkg
+.nuget/
+PublishProfiles/
+*.pubxml.user
+publish/
+
+
+# --- Configuracion local que no debe salir de la maquina ---------------------
+appsettings.*.local.json
+*.db
+*.db-shm
+*.db-wal

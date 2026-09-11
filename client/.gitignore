@@ -1,0 +1,48 @@
+# Reglas del frontend React + Vite. Complementan las del .gitignore de la raiz.
+
+
+# --- Dependencias ------------------------------------------------------------
+# package-lock.json SI se versiona: es lo que hace reproducible el build de la
+# imagen de Docker. node_modules se reconstruye desde el con npm ci.
+node_modules/
+.pnp
+.pnp.js
+jspm_packages/
+
+
+# --- Salida de compilacion ---------------------------------------------------
+dist/
+dist-ssr/
+build/
+*.local
+
+
+# --- Cache de herramientas ---------------------------------------------------
+.vite/
+.cache/
+.eslintcache
+.npm/
+*.tsbuildinfo
+
+
+# --- Registros ---------------------------------------------------------------
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+
+# --- Entorno local -----------------------------------------------------------
+# Aqui viven las claves de Firebase. Vite las incrusta al compilar, asi que este
+# archivo no puede salir del equipo. La plantilla publica es .env.example.
+.env
+.env.local
+.env.*.local
+
+
+# --- Cobertura y resultados de pruebas ---------------------------------------
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
