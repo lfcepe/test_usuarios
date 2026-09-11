@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Devsu.Cuentas.Domain</RootNamespace>
+    <AssemblyName>Devsu.Cuentas.Domain</AssemblyName>
+  </PropertyGroup>
+
+  <!-- Sin referencias externas: la logica de saldos no depende de ningun framework. -->
+
+</Project>
