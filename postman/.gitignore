@@ -1,0 +1,10 @@
+# La coleccion y el entorno si se versionan; los informes que produce newman al
+# ejecutarla, no.
+
+newman/
+*-report.html
+*-report.json
+*.junit.xml
+
+# Entornos con credenciales reales que alguien exporte desde su Postman.
+*.local.postman_environment.json
