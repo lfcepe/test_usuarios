@@ -1,0 +1,17 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- El reporte de estado de cuenta formatea fechas y decimales con CultureInfo explicita,
+         pero se deja la globalizacion completa activa para no depender del modo invariante. -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <Authors>Devsu</Authors>
+    <Company>Devsu</Company>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+</Project>
